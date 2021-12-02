@@ -1,4 +1,5 @@
 import sys
+from collections import deque
 
 
 class Node:
@@ -36,44 +37,60 @@ class B_PLUS_TREE:
                     break
 
         # leaf node에서 insert 및 split
-        # Insert Case 1
-        nodeCurrent.keys.append(k)
+        # Insert
+        nodeCurrent.keys.append(k) # Case 1
         nodeCurrent.keys.sort()
         nodeCurrent.values.append(k)
         nodeCurrent.values.sort()
 
-        if len(nodeCurrent.values) == self.order:
-            if len(nodeCurrent.parent) == self.order: # Case 2
-                while 1:
-                    if nodeCurrent == self.nodeRoot:
-                        # Create new root
-                        nodeRootNew = Node()
-                        nodeRootNew.subTrees.append(nodeCurrent)
-                        nodeCurrent.parent = nodeRootNew
-                        self.nodeRoot = nodeRootNew
+        if len(nodeCurrent.keys) == self.order: # Case 2, 3
+            while 1:
+                print("=====while")
+                if nodeCurrent == self.nodeRoot:
+                    print("=====if nodeRoot")
+                    # Create new root
+                    nodeRootNew = Node()
+                    nodeRootNew.subTrees.append(nodeCurrent)
+                    nodeCurrent.parent = nodeRootNew
+                    self.nodeRoot = nodeRootNew
+                print("=====nodeCurrent", nodeCurrent.keys)
 
-                    # Split
-                    nodeRight = Node()
-                    nodeRight.parent = nodeCurrent.parent
-                    nodeRight.isLeaf = True
-                    nodeRight.keys = nodeCurrent.values[self.order / 2:]
-                    nodeRight.values = nodeCurrent.values[self.order / 2:]
-                    del nodeCurrent.values[self.order / 2:]
-                    nodeRight.nextNode = nodeCurrent.nextNode
+                # Split
+                nodeRight = Node()
+                nodeRight.parent = nodeCurrent.parent
+                nodeRight.isLeaf = nodeCurrent.isLeaf
+                nodeRight.keys = nodeCurrent.keys[int(self.order / 2):]
+                nodeRight.values = nodeCurrent.keys[int(self.order / 2):]
+                del nodeCurrent.keys[int(self.order / 2):]
+                del nodeCurrent.values[int(self.order / 2):]
+                nodeRight.nextNode = nodeCurrent.nextNode
 
-                    nodeCurrent.nextNode = nodeRight
+                nodeCurrent.nextNode = nodeRight
+                print("=====nodeRight", nodeRight.values)
 
-                    # Propagate
-                    MedianValue = nodeRight.values[0]
-                    nodeCurrent.parent.keys.append(MedianValue)
-                    nodeCurrent.parent.keys.sort()
+                # Propagate
+                MedianKeys = nodeRight.keys[0]
+                nodeCurrent.parent.keys.append(MedianKeys)
+                nodeCurrent.parent.keys.sort()
+                nodeCurrent.parent.values.append(MedianKeys)
+                nodeCurrent.parent.values.sort()
 
-                    MedianIndex = nodeCurrent.parent.keys.index(MedianValue)
-                    nodeCurrent.parent.subTrees.insert(MedianIndex + 1, nodeRight)
+                MedianIndex = nodeCurrent.parent.keys.index(MedianKeys)
+                nodeCurrent.parent.subTrees.insert(MedianIndex + 1, nodeRight)
 
-                    if not len(nodeCurrent.parent) == self.order: # Case 3
-                        break
-        pass
+                if not nodeRight.isLeaf:
+                    nodeRight.subTrees = nodeCurrent.subTrees[int(self.order / 2 + 1):]
+                    del nodeCurrent.subTrees[int(self.order / 2 + 1):]
+
+                    for subTree in nodeRight.subTrees:
+                        subTree.parent = nodeRight
+
+                    del nodeRight.keys[0]
+
+                if len(nodeCurrent.parent.keys) == self.order:
+                    nodeCurrent = nodeCurrent.parent
+                else:
+                    break
 
     def delete(self, k):
         pass
@@ -84,16 +101,46 @@ class B_PLUS_TREE:
             l += "{},".format(k)
         l = l[:-1] + "]"
         print(l)
-        pass
 
     def print_tree(self):
-        pass
+        q = deque([self.nodeRoot]) # 그래프 아니고 트리라 visited 필요 없을 듯
+
+        while q:
+            nodeCurrent = q.popleft()
+            l = "["
+            for k in nodeCurrent.keys:
+                l += "{},".format(k)
+            l = l[:-1] + "]-"
+            print(l, end='')
+
+            for subTree in nodeCurrent.subTrees:
+                l = "["
+                for k in subTree.keys:
+                    l += "{},".format(k)
+                l = l[:-1] + "],"
+                print(l, end='')
+                if not subTree.isLeaf:
+                    q.append(subTree)
+            print("\b")
+
 
     def find_range(self, k_from, k_to):
         pass
 
     def find(self, k):
-        pass
+        # leaf node까지 search
+        nodeCurrent = self.nodeRoot
+        while not nodeCurrent.isLeaf:
+            nodeCurrent = nodeCurrent.subTrees[-1]
+            keysLen = len(nodeCurrent.keys)
+            for index in range(0, keysLen):
+                if k < nodeCurrent.keys[index]:
+                    nodeCurrent = nodeCurrent.subTrees[index]
+                    break
+
+
+
+
 
 
 def main():
