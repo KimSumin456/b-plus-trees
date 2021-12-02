@@ -114,7 +114,41 @@ class B_PLUS_TREE:
 
 
     def find_range(self, k_from, k_to):
-        pass
+        # leaf node까지 search
+        nodeCurrent = self.nodeRoot
+        while 1:
+            if nodeCurrent.isLeaf:
+                break
+
+            keys_len = len(nodeCurrent.keys)
+            for index in range(0, keys_len):
+                if k_from < nodeCurrent.keys[index]:
+                    nodeCurrent = nodeCurrent.subTrees[index]
+                    break
+            if not nodeCurrent.isLeaf and k_from >= nodeCurrent.keys[-1]:
+                nodeCurrent = nodeCurrent.subTrees[-1]
+
+        flag_k = False
+        keys_len = len(nodeCurrent.keys)
+        for index in range(0, keys_len):
+            if k_from == nodeCurrent.keys[index]:
+                flag_k = True
+            if flag_k:
+                print(str(nodeCurrent.keys[index]) + ",", end='')
+
+        while flag_k:
+            nodeCurrent = nodeCurrent.nextNode
+
+            keys_len = len(nodeCurrent.keys)
+            for index in range(0, keys_len):
+                print(str(nodeCurrent.keys[index]) + ",", end='')
+                if k_to == nodeCurrent.keys[index]:
+                    flag_k = False
+                    print("\b")
+                    break
+
+
+
 
     def find(self, k):
         l = ''
