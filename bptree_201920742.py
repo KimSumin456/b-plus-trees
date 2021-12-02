@@ -107,10 +107,13 @@ class B_PLUS_TREE:
             self.print_node(nodeCurrent, '-', '')
 
             for subTree in nodeCurrent.subTrees:
-                self.print_node(subTree, ',', '')
+                if subTree == nodeCurrent.subTrees[-1]: # 출력 형식 때문에
+                    self.print_node(subTree, '', '')
+                else:
+                    self.print_node(subTree, ',', '')
                 if not subTree.isLeaf:
                     q.append(subTree)
-            print("\b")
+        print("")
 
 
     def find_range(self, k_from, k_to):
@@ -141,11 +144,12 @@ class B_PLUS_TREE:
 
             keys_len = len(nodeCurrent.keys)
             for index in range(0, keys_len):
-                print(str(nodeCurrent.keys[index]) + ",", end='')
                 if k_to == nodeCurrent.keys[index]:
                     flag_k = False
-                    print("\b")
+                    print(str(nodeCurrent.keys[index]), end='')
                     break
+                print(str(nodeCurrent.keys[index]) + ",", end='')
+        print("")
 
 
 
@@ -173,7 +177,8 @@ class B_PLUS_TREE:
         keys_len = len(nodeCurrent.keys)
         for index in range(0, keys_len):
             if k == nodeCurrent.keys[index]:
-                print(l+"\b")
+                l = l[:-1]
+                print(l)
                 return
         print("NONE")
 
