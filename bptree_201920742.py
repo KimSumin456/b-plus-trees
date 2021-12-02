@@ -29,12 +29,13 @@ class B_PLUS_TREE:
         # leaf node까지 search
         nodeCurrent = self.nodeRoot
         while not nodeCurrent.isLeaf:
-            nodeCurrent = nodeCurrent.subTrees[-1]
-            keysLen = len(nodeCurrent.keys)
-            for index in range(0, keysLen):
+            keys_len = len(nodeCurrent.keys)
+            for index in range(0, keys_len):
                 if k < nodeCurrent.keys[index]:
                     nodeCurrent = nodeCurrent.subTrees[index]
                     break
+            if not nodeCurrent.isLeaf and k >= nodeCurrent.keys[-1]:
+                nodeCurrent = nodeCurrent.subTrees[-1]
 
         # leaf node에서 insert 및 split
         # Insert
@@ -45,15 +46,12 @@ class B_PLUS_TREE:
 
         if len(nodeCurrent.keys) == self.order: # Case 2, 3
             while 1:
-                print("=====while")
                 if nodeCurrent == self.nodeRoot:
-                    print("=====if nodeRoot")
                     # Create new root
                     nodeRootNew = Node()
                     nodeRootNew.subTrees.append(nodeCurrent)
                     nodeCurrent.parent = nodeRootNew
                     self.nodeRoot = nodeRootNew
-                print("=====nodeCurrent", nodeCurrent.keys)
 
                 # Split
                 nodeRight = Node()
@@ -66,7 +64,6 @@ class B_PLUS_TREE:
                 nodeRight.nextNode = nodeCurrent.nextNode
 
                 nodeCurrent.nextNode = nodeRight
-                print("=====nodeRight", nodeRight.values)
 
                 # Propagate
                 MedianKeys = nodeRight.keys[0]
@@ -120,15 +117,31 @@ class B_PLUS_TREE:
         pass
 
     def find(self, k):
+        l = ''
         # leaf node까지 search
         nodeCurrent = self.nodeRoot
-        while not nodeCurrent.isLeaf:
-            nodeCurrent = nodeCurrent.subTrees[-1]
-            keysLen = len(nodeCurrent.keys)
-            for index in range(0, keysLen):
+        while 1:
+            l += "["
+            for key in nodeCurrent.keys:
+                l += "{},".format(key)
+            l = l[:-1] + "]" + "-"
+            if nodeCurrent.isLeaf:
+                break
+
+            keys_len = len(nodeCurrent.keys)
+            for index in range(0, keys_len):
                 if k < nodeCurrent.keys[index]:
                     nodeCurrent = nodeCurrent.subTrees[index]
                     break
+            if not nodeCurrent.isLeaf and k >= nodeCurrent.keys[-1]:
+                nodeCurrent = nodeCurrent.subTrees[-1]
+
+        keys_len = len(nodeCurrent.keys)
+        for index in range(0, keys_len):
+            if k == nodeCurrent.keys[index]:
+                print(l+"\b")
+                return
+        print("NONE")
 
     def print_node(self, node, midchar, endchar):
         l = "["
