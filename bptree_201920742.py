@@ -107,18 +107,10 @@ class B_PLUS_TREE:
 
         while q:
             nodeCurrent = q.popleft()
-            l = "["
-            for k in nodeCurrent.keys:
-                l += "{},".format(k)
-            l = l[:-1] + "]-"
-            print(l, end='')
+            self.print_node(nodeCurrent, '-', '')
 
             for subTree in nodeCurrent.subTrees:
-                l = "["
-                for k in subTree.keys:
-                    l += "{},".format(k)
-                l = l[:-1] + "],"
-                print(l, end='')
+                self.print_node(subTree, ',', '')
                 if not subTree.isLeaf:
                     q.append(subTree)
             print("\b")
@@ -138,9 +130,12 @@ class B_PLUS_TREE:
                     nodeCurrent = nodeCurrent.subTrees[index]
                     break
 
-
-
-
+    def print_node(self, node, midchar, endchar):
+        l = "["
+        for k in node.keys:
+            l += "{},".format(k)
+        l = l[:-1] + "]" + midchar
+        print(l, end=endchar)
 
 
 def main():
